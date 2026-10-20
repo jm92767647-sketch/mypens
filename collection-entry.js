@@ -8,6 +8,8 @@
  let home=true,active=0,daily=false,navigating=false,choices=[],wheelAt=0,wheelTotal=0,start=null,dragged=false;
  const button=(selector)=>document.querySelector(selector);
  const choice=(title,selector)=>({title,selector,run:()=>button(selector)?.click()});
+ const dailyNav=site==='pens'?document.createElement('nav'):null;
+ if(dailyNav){dailyNav.id='daily-classification';dailyNav.setAttribute('aria-label','펜과 샤프 분류');dailyNav.hidden=true;dailyNav.innerHTML=['Ballpoint','Multi','Mecha'].map((label,i)=>`<button data-daily-choice="${i}" aria-pressed="${i===0}">${label}</button>`).join('');button('#classification').after(dailyNav);}
  function options(){
   if(site==='pens'&&daily)return ['Ballpoint Pen','Multi Pen','Mechanical Pencil'].map(title=>({title,run:()=>{
    button('[data-section="daily"]').click();
@@ -21,6 +23,7 @@
   root.querySelectorAll('.collection-choice').forEach((card,i)=>{card.classList.toggle('is-current',i===active);card.style.setProperty('--side',Math.sign(i-active));card.setAttribute('aria-current',String(i===active));card.tabIndex=i===active?0:-1;});
   root.querySelector('.collection-prev').disabled=active===0;root.querySelector('.collection-next').disabled=active===choices.length-1;
   root.querySelector('.collection-announcement').textContent=`${choices[active].title}, ${active+1} / ${choices.length}`;
+  if(dailyNav)dailyNav.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===active)));
   const selected=choices[active];
   if(document.body.dataset.presentation==='list'&&selected.selector&&button(selected.selector)?.getAttribute('aria-pressed')!=='true'){
    navigating=true;selected.run();navigating=false;
@@ -33,6 +36,7 @@
  }
  function sync(){
   const list=document.body.dataset.presentation==='list',directory=!!pane.querySelector('.catalog-directory');
+  if(dailyNav)dailyNav.hidden=!list||!daily;
   root.hidden=!list||!home;root.inert=!list||!home;
   pane.classList.toggle('collection-entry-hidden',list&&home);pane.classList.toggle('collection-entry-directory',list&&!home&&directory);pane.inert=!list||home;
   back.hidden=!list||home||!directory;
@@ -65,6 +69,8 @@
  document.addEventListener('click',e=>{
   if(navigating||document.body.dataset.presentation!=='list')return;
   const collection=site==='pens'&&e.target.closest('header [data-section]');if(collection){daily=collection.dataset.section==='daily';active=0;home=true;render();return;}
+  const dailyButton=daily&&e.target.closest('[data-daily-choice]');
+  if(dailyButton){active=Number(dailyButton.dataset.dailyChoice);paint();if(!home)enter();return;}
   const index=choices.findIndex(c=>c.selector&&e.target.closest(c.selector));
   if(index>=0){active=index;paint();}
  });

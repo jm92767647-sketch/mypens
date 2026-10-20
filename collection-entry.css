@@ -41,4 +41,8 @@ body[data-presentation=free] #collection-entry,body[data-presentation=free] #col
 .collection-choice-title{color:#665d55}.collection-arrow{color:#9b8d80}.collection-arrow:hover:not(:disabled){color:#665d55;background:#e7e3e04d}
 @media(max-width:700px){#collection-entry{--card-width:calc(100vw - 112px);--card-gap:22px}.collection-choice{height:min(310px,60svh)}}
 @media(max-height:500px){#collection-entry .collection-choice{height:min(250px,65svh)}}
+#daily-classification[hidden]{display:none!important}
+#daily-classification{display:flex;gap:7px}
+#daily-classification button{padding:6px 9px}
+@media(max-width:760px){#daily-classification{gap:2px}#daily-classification button{font-size:9px;padding:5px 3px}}
 
