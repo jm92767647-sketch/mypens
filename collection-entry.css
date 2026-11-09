@@ -143,3 +143,7 @@ body header h1{font-family:'Collection Entry Serif',Georgia,serif}
 @media(max-width:760px){#collection-entry{--entry-heading-top:18px;--entry-heading-size:clamp(23px,6.8vw,40px)}}
 @media(max-height:500px){#collection-entry{--entry-heading-top:12px;--entry-heading-size:26px}}
 @media(min-width:761px) and (min-height:501px){#collection-entry[data-menu=types]{--entry-heading-top:clamp(12px,calc(4vh - 14px),32px);--entry-heading-size:clamp(24px,calc(4.5vh + 10px),56px)}}
+
+/* Keep the entry spacing and remove the timeline rule. */
+#collection-entry::before{content:none}
+#collection-entry[data-menu=types] .collection-sort-label{display:none}
