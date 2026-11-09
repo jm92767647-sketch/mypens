@@ -120,3 +120,4 @@ body header h1{font-family:'Collection Entry Serif',Georgia,serif}
 #collection-entry::after{content:none}
 #collection-entry .collection-choice:first-child::after{content:'PEN\A COLLECTION\A Sort';white-space:pre;text-align:right;line-height:.98;bottom:calc(100% + 5px);color:#22282d}
 @media(max-width:760px){#collection-entry .collection-choice:first-child::after{font-size:min(clamp(15px,4.6vw,23px),calc((var(--timeline-x) - 12px)/7.3))}}
+@media(min-width:761px) and (min-height:501px) and (max-height:849px){#collection-entry[data-menu=types]::after{content:'PEN\A COLLECTION\A Sort';top:16px;left:auto;right:calc(100% - var(--timeline-x) + 12px);font:400 clamp(18px,2.5vw,40px)/.98 'Collection Entry Serif',Georgia,serif;white-space:pre;text-align:right;letter-spacing:normal;color:#22282d}#collection-entry[data-menu=types] .collection-choice:first-child::after{content:none}}
