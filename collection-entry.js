@@ -5,19 +5,37 @@
  const root=document.createElement('section');root.id='collection-entry';root.tabIndex=-1;root.setAttribute('aria-label','목록 분류 선택');
  const back=document.createElement('button');back.id='collection-entry-back';back.setAttribute('aria-label','이전 선택으로 돌아가기');back.innerHTML='<svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M30 12H3M13 2 3 12l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
  pane.parentElement.append(root,back);
- let home=true,penStage='types',daily=false,active=0,navigating=false,choices=[];
+ let home=true,penStage='types',sectionChosen=false,daily=false,active=0,navigating=false,choices=[];
  const button=selector=>document.querySelector(selector);
  const dailyTitles=['Ballpoint Pen','Multi Pen','Mechanical Pencil'];
  const dailyNav=site==='pens'?document.createElement('nav'):null;
  if(dailyNav){dailyNav.id='daily-classification';dailyNav.setAttribute('aria-label','펜과 샤프 분류');dailyNav.hidden=true;dailyNav.innerHTML=['Ballpoint','Multi','Mecha'].map((label,i)=>`<button data-daily-choice="${i}" aria-pressed="${i===0}">${label}</button>`).join('');button('#classification').after(dailyNav);}
- function run(action){navigating=true;try{action();}finally{navigating=false;}}
+ const header=document.querySelector('header');
+ const savedPressed=new Map();
+ const classificationButtons='button[data-sort],button[data-mode]';
+ function restoreHeader(){
+  for(const [b,pressed] of savedPressed){if(pressed===null)b.removeAttribute('aria-pressed');else b.setAttribute('aria-pressed',pressed);}
+  savedPressed.clear();
+ }
+ function syncHeader(){
+  if(document.body.dataset.presentation!=='list'||!home){restoreHeader();return;}
+  const selector=classificationButtons+(site==='pens'&&penStage==='types'&&!sectionChosen?',button[data-section]':'');
+  header.querySelectorAll(selector).forEach(b=>{
+   const pressed=b.getAttribute('aria-pressed');
+   if(!savedPressed.has(b))savedPressed.set(b,pressed);
+   if(pressed!=='false')b.setAttribute('aria-pressed','false');
+  });
+ }
+ header.addEventListener('click',e=>{if(e.target.closest(classificationButtons+',button[data-section],button[data-presentation-button]'))restoreHeader();},true);
+ new MutationObserver(syncHeader).observe(header,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});
+ function run(action){restoreHeader();navigating=true;try{action();}finally{navigating=false;}}
  function enterDaily(index){
-  daily=true;active=index;penStage='types';
+  sectionChosen=true;daily=true;active=index;penStage='types';
   run(()=>{button('[data-section="daily"]').click();[...pane.querySelectorAll('.catalog-entry')].find(b=>b.textContent.trim()===dailyTitles[index])?.click();});
   home=false;sync();pane.querySelector('#catalog-back')?.focus({preventScroll:true});
  }
  function fountainMenu(){
-  daily=false;penStage='fountain';active=0;run(()=>button('[data-section="fountain"]').click());home=true;render();
+  sectionChosen=true;daily=false;penStage='fountain';active=0;run(()=>button('[data-section="fountain"]').click());home=true;render();
  }
  function options(){
   if(site==='pens'&&penStage==='types')return [...dailyTitles.map((title,i)=>({title,run:()=>enterDaily(i)})),{title:'Fountain Pen',run:fountainMenu}];
@@ -30,6 +48,7 @@
   root.hidden=!list||!home;root.inert=!list||!home;
   pane.classList.toggle('collection-entry-hidden',list&&home);pane.classList.toggle('collection-entry-directory',list&&!home&&directory);pane.inert=!list||home;
   back.hidden=!list||(home?!(site==='pens'&&penStage==='fountain'):!directory);
+  syncHeader();
  }
  function render(){
   choices=options();root.dataset.menu=site==='pens'?penStage:'classification';
@@ -42,7 +61,7 @@
   if(navigating||document.body.dataset.presentation!=='list')return;
   if(site==='pens'){
    const collection=e.target.closest('header [data-section]');
-   if(collection){daily=collection.dataset.section==='daily';penStage=daily?'types':'fountain';active=0;showHome();return;}
+   if(collection){sectionChosen=true;daily=collection.dataset.section==='daily';penStage=daily?'types':'fountain';active=0;showHome();return;}
    const type=e.target.closest('[data-daily-choice]');if(type){enterDaily(Number(type.dataset.dailyChoice));return;}
    const sort=e.target.closest('header [data-sort]');if(sort){daily=false;penStage='fountain';home=false;sync();return;}
   }
