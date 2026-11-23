@@ -133,3 +133,25 @@ body[data-entry-site="watches"] #collection-entry[data-menu]:has(> .collection-c
     top: -12px;
   }
 }
+
+/* Align the second mobile header row with the title's left edge. */
+@media (max-width: 760px) {
+  body[data-entry-site="pens"][data-menu-open] > #collection-header {
+    grid-template-columns: 108px minmax(0, 1fr) 40px;
+  }
+  body[data-entry-site="pens"] #collection-header .view-switch { margin-left: 44px; }
+}
+@media (max-width: 350px) {
+  body[data-entry-site="pens"][data-menu-open] > #collection-header {
+    grid-template-columns: 100px minmax(0, 1fr) 40px;
+    column-gap: 2px;
+  }
+  body[data-entry-site="pens"] #collection-header .view-switch { width: 56px; }
+  body[data-entry-site="pens"] #collection-header .collection-controls,
+  body[data-entry-site="pens"] #collection-header .collection-controls nav { gap: 1px; }
+  body[data-entry-site="pens"] #collection-header .collection-controls button {
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+}
+
