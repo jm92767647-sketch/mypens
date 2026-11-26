@@ -25,9 +25,9 @@
  const fountainStyles=[...new Set(fountain.map(p=>p.style))].filter(Boolean);
  const two=n=>String(n).padStart(2,'0');
  const CARDS_META={
-  'Ballpoint Pen':{art:artOf(56),ko:'볼펜',note:()=>`${two(daily('Ballpoint Pen').length)} PENS`},
-  'Multi Pen':{art:artOf(46),ko:'멀티펜',note:()=>`${two(daily('Multi Pen').length)} PENS`},
-  'Mechanical Pencil':{art:artOf(68),ko:'샤프펜슬',note:()=>`${two(daily('Mechanical Pencil').length)} PENS`},
+  'Ballpoint Pen':{art:artOf(64),ko:'볼펜',note:()=>`${two(daily('Ballpoint Pen').length)} PENS`},
+  'Multi Pen':{art:artOf(47),ko:'멀티펜',note:()=>`${two(daily('Multi Pen').length)} PENS`},
+  'Mechanical Pencil':{art:artOf(61),ko:'샤프펜슬',note:()=>`${two(daily('Mechanical Pencil').length)} PENS`},
   'Fountain Pen':{art:artOf(11),ko:'만년필',note:()=>`${two(fountain.length)} PENS`},
   'By Brand':{art:artOf(11),ko:'브랜드별',note:()=>`${two(fountainBrands.length)} MAKERS`},
   'By Style':{art:artOf(12),ko:'스타일별',note:()=>`${two(fountainStyles.length)} STYLES`}
@@ -66,14 +66,27 @@
    const ko=document.createElement('span');ko.className='entry-card-ko';ko.textContent=meta.ko;
    button.prepend(no);
    button.append(count,ko);
-   const show=()=>setHero(i);
+   const show=()=>{setHero(i);autoplay()};
    button.addEventListener('mouseenter',show);
    button.addEventListener('focus',show);
   });
   const want=stage==='types'?buttons.length-1:0;
   if(heroIndex===null||heroIndex>=buttons.length)setHero(want,true);
   else setHero(heroIndex,true);
+  autoplay();
  }
+ let rotate=null;
+ const phone=()=>matchMedia('(max-width:760px)').matches;
+ function autoplay(){
+  clearInterval(rotate);rotate=null;
+  if(!entry||entry.hidden||!phone())return;
+  rotate=setInterval(()=>{
+   if(document.hidden||!entry||entry.hidden)return;
+   const n=entry.querySelectorAll('.collection-choice').length;
+   if(n>1)setHero(((heroIndex??0)+1)%n);
+  },2000);
+ }
+ addEventListener('resize',autoplay);
  function setHero(i,instant){
   const hero=entry&&entry.querySelector('.entry-hero');
   if(!hero)return;
@@ -129,27 +142,53 @@
  if(pane){decorateDirectory();new MutationObserver(decorateDirectory).observe(pane,{childList:true,subtree:true});}
 
  /* INDEX mark opens the statistics */
- const numbers=$('#numbers'),oldButton=$('#number');
  const openButton=document.createElement('button');
  openButton.id='index-open';openButton.type='button';
  openButton.setAttribute('aria-haspopup','dialog');
  openButton.setAttribute('aria-label','컬렉션 통계');
  openButton.innerHTML='<span class="ix-dots" aria-hidden="true">'+'<i></i>'.repeat(3)+'</span>';
  header.append(openButton);
- function foldSections(){
-  if(!numbers)return;
-  numbers.querySelectorAll('.number-section').forEach(section=>{
-   if(section.closest('details'))return;
-   const heading=section.querySelector('h3');
-   const list=section.querySelector('ul');
-   if(!heading||!list)return;
-   const fold=document.createElement('details');
-   const summary=document.createElement('summary');
-   summary.innerHTML=`<span>${heading.textContent} · ${String(list.children.length).padStart(2,'0')}</span><span class="ix-sign">+</span>`;
-   section.replaceWith(fold);fold.append(summary,section);
-  });
+
+ const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const bars=entries=>{
+  const max=Math.max(...entries.map(([,n])=>n),1);
+  return entries.map(([lab,n])=>`<div class="ix-bar"><span>${esc(lab)}</span><u style="--w:${Math.round(n/max*100)}%"></u><b>${String(n).padStart(2,'0')}</b></div>`).join('');
+ };
+ const fold=(title,count,entries)=>`<details><summary><span>${title} · ${String(count).padStart(2,'0')}</span><span class="ix-sum-right">COUNT<span class="ix-sign">+</span></span></summary><div class="ix-bars">${bars(entries)}</div></details>`;
+ const brandName=p=>((typeof brandOf==='function'?brandOf(p)[0]:'')||p.name.split(' ')[0]);
+ const sortCount=list=>list.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+
+ const dialog=document.createElement('dialog');
+ dialog.id='index-dialog';dialog.setAttribute('aria-labelledby','index-title');
+ document.body.append(dialog);
+ function build(){
+  const typeEntries=[['볼펜',daily('Ballpoint Pen').length],['멀티펜',daily('Multi Pen').length],['샤프펜슬',daily('Mechanical Pencil').length],['만년필',fountain.length]];
+  const brandEntries=sortCount(fountainBrands.map(b=>[b,fountain.filter(p=>brandName(p)===b).length]));
+  const styleEntries=sortCount(fountainStyles.map(st=>[st,fountain.filter(p=>p.style===st).length]));
+  dialog.innerHTML=`<button type="button" class="ix-close" aria-label="닫기">✕</button><div class="ix-wrap">
+   <div class="ix-head">
+    <div><div class="ix-eyebrow">PEN COLLECTION × NUMBERS</div><h2 id="index-title">Index <em>&amp; Numbers</em></h2></div>
+    <div class="ix-stats">
+     <div><b>${pens.length}</b><span>PENS</span></div>
+     <div><b>${fountain.length}</b><span>FOUNTAIN</span></div>
+     <div><b>${fountainBrands.length}</b><span>BRANDS</span></div>
+     <div><b>${String(fountainStyles.length).padStart(2,'0')}</b><span>STYLES</span></div>
+    </div>
+   </div>
+   <div class="ix-folds">
+    ${fold('종류별',typeEntries.length,typeEntries)}
+    ${fold('브랜드별',brandEntries.length,brandEntries)}
+    ${fold('스타일별',styleEntries.length,styleEntries)}
+   </div>
+  </div>`;
+  dialog.querySelector('.ix-close').onclick=()=>dialog.close();
  }
- openButton.onclick=()=>{oldButton?.click();setTimeout(foldSections,0)};
+ openButton.onclick=()=>{build();dialog.showModal()};
+ dialog.addEventListener('click',event=>{
+  if(event.target!==dialog)return;
+  const r=dialog.getBoundingClientRect();
+  if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();
+ });
 
  /* list and roam hand over behind a paper veil */
  const main=document.querySelector('main');
