@@ -219,5 +219,5 @@ body[data-entry-home=true] #collection-entry .collection-choice.on .collection-c
  .catalog-group-head{justify-content:flex-start!important}
  .catalog-group-head h2{text-align:left!important}
  #catalog-back{left:auto!important;right:0!important;justify-content:flex-end!important}
- body[data-entry-home=true] #collection-entry-back{left:auto!important;right:10px!important;top:6px!important;justify-content:flex-end!important}
+ #collection-entry-back{left:auto!important;right:10px!important;top:6px!important;justify-content:flex-end!important}
 }

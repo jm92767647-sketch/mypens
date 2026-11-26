@@ -84,7 +84,7 @@
    if(document.hidden||!entry||entry.hidden)return;
    const n=entry.querySelectorAll('.collection-choice').length;
    if(n>1)setHero(((heroIndex??0)+1)%n);
-  },2000);
+  },2700);
  }
  addEventListener('resize',autoplay);
  function setHero(i,instant){
