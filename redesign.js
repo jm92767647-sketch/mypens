@@ -29,8 +29,8 @@
   'Multi Pen':{art:artOf(47),ko:'멀티펜',note:()=>`${two(daily('Multi Pen').length)} PENS`},
   'Mechanical Pencil':{art:artOf(61),ko:'샤프펜슬',note:()=>`${two(daily('Mechanical Pencil').length)} PENS`},
   'Fountain Pen':{art:artOf(11),ko:'만년필',note:()=>`${two(fountain.length)} PENS`},
-  'By Brand':{art:artOf(11),ko:'브랜드별',note:()=>`${two(fountainBrands.length)} MAKERS`},
-  'By Style':{art:artOf(12),ko:'스타일별',note:()=>`${two(fountainStyles.length)} STYLES`}
+  'By Brand':{art:artOf(35),ko:'브랜드별',note:()=>`${two(fountainBrands.length)} MAKERS`},
+  'By Style':{art:artOf(14),ko:'스타일별',note:()=>`${two(fountainStyles.length)} STYLES`}
  };
  const STAGE={types:['Elect','pens.'],fountain:['Fountain','pens.']};
  let heroIndex=null;
@@ -105,7 +105,7 @@
   };
   if(instant){paint();return;}
   hero.classList.add('swap');
-  setTimeout(paint,170);
+  setTimeout(paint,560);
  }
  if(entry){decorate();new MutationObserver(decorate).observe(entry,{childList:true});}
 
